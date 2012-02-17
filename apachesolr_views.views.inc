@@ -28,6 +28,9 @@ function apachesolr_views_views_handlers() {
       'apachesolr_views_handler_argument_tid' => array(
         'parent' => 'apachesolr_views_handler_argument',
       ),
+      'apachesolr_views_handler_argument_number_decimal' => array(
+        'parent' => 'views_handler_argument_numeric',
+      ),
       'apachesolr_views_handler_argument_search' => array(
         'parent' => 'apachesolr_views_handler_argument',
       ),
@@ -328,6 +331,15 @@ function apachesolr_views_views_data() {
             'cck_field' => $field,
           ),
         ); // end: array
+      }
+      elseif ($field['type'] == 'number_decimal') {
+        $data['apachesolr_' . $base_table][apachesolr_index_key($field)] = array(
+          'title' => t($field['widget']['label']),
+          'help' => t('CCK Mapping for @fieldname', array('@fieldname' => $field['field_name'])),
+          'argument' => array(
+            'handler' => 'apachesolr_views_handler_argument',
+          ),
+        );
       } // end: if
     } // end: foreach
   } // end: foreach
