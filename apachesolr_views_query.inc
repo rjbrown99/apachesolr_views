@@ -250,7 +250,7 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
       
       
       // process subqueries
-      foreach ($this->_subqueries as $query_data) {
+      foreach ($this->_subqueries as $id=>$query_data) {
         // process the query string first
         $sub_query_string = $query_data['query']->get_query_basic();
         if ($sub_query_string) {
@@ -259,9 +259,15 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
         
         // now handle the filter query
         $subfq = $query_data['query']->get_fq();
-        if (!empty($subfq)) {
+        if ($subfq) {
           $operator = $query_data['fq_op'];
-          $this->_params['fq'][] = "(" . implode(" {$operator} ", $subfq) .")";
+          $subqueries = array();
+          foreach ($subfq as $key => $values) {
+            foreach ($values as $value) {
+              $subqueries[] = $value;
+            }
+          }
+          $this->_params['fq'][$id] =  " (" . implode(" $operator " , $subqueries) . ")";
         }
       }
       
