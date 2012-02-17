@@ -312,6 +312,16 @@ function apachesolr_views_views_data() {
       ),
     );
   
+    $data['apachesolr_' . $base_table]['status'] = array(
+      'title' => t('Published'),
+      'help' => t('Whether or not this node has been published'),
+      'filter' => array(
+        'handler' => 'apachesolr_views_handler_filter_boolean',
+        'label' => t('Published'),
+        'type' => 'yes-no',
+      ),
+    );
+    
     // provide CCK mappings filters
     foreach (apachesolr_cck_fields() as $name => $field) {
       // TODO: can we make use of CCK's mapping already and just override
