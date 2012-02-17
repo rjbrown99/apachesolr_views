@@ -16,6 +16,9 @@ function apachesolr_views_views_handlers() {
       'apachesolr_views_handler_argument_optionwidget' => array(
         'parent' => 'apachesolr_views_handler_argument',
       ),
+     'apachesolr_views_handler_argument_nodereference' => array(
+        'parent' => 'content_handler_argument_many_to_one',
+      ),
       'apachesolr_views_handler_argument_node_type' => array(
         'parent' => 'apachesolr_views_handler_argument',
       ),
@@ -62,6 +65,12 @@ function apachesolr_views_views_handlers() {
       'apachesolr_views_handler_field_snippet' => array(
         'parent' => 'views_handler_field',
       ),
+      'apachesolr_views_handler_field_nodereference' => array(
+        'parent' => 'views_handler_field',
+      ),
+      'apachesolr_views_handler_field_userreference' => array(
+        'parent' => 'views_handler_field',
+      ),
       'apachesolr_views_handler_filter_tid' => array(
         'parent' => 'views_handler_filter_term_node_tid',
       ),
@@ -85,6 +94,12 @@ function apachesolr_views_views_handlers() {
       ),
       'apachesolr_views_handler_filter_boolean' => array(
         'parent' => 'views_handler_filter_boolean_operator',
+      ),
+      'apachesolr_views_handler_filter_nodereference' => array(
+        'parent' => 'content_handler_filter_many_to_one',
+      ),
+      'apachesolr_views_handler_filter_userreference' => array(
+        'parent' => 'content_handler_filter_many_to_one',
       ),
       'apachesolr_views_handler_sort' => array(
         'parent' => 'views_handler_sort',
@@ -327,7 +342,7 @@ function apachesolr_views_views_data() {
       // TODO: can we make use of CCK's mapping already and just override
       // the query part???
       $options = content_allowed_values(content_fields($field['field_name']));
-      if (!empty($options)) {
+      if (!empty($options) && $field['type'] != 'nodereference' && $field['type'] != 'userreference') {
         $label = (isset($field['widget']['label'])) ? t($field['widget']['label']) : '';
         $data['apachesolr_' . $base_table][apachesolr_index_key($field)] = array(
           'title' => $label,
@@ -351,6 +366,38 @@ function apachesolr_views_views_data() {
           ),
         );
       } // end: if
+      elseif ($field['type'] == 'nodereference') {
+       $data['apachesolr_' . $base_table][apachesolr_index_key($field)] = array(
+         'title' => t($field['field_name']),
+         'help' => t('CCK Mapping for @fieldname', array('@fieldname' => $field['field_name'])),
+         'field' => array(
+           'handler' => 'apachesolr_views_handler_field_nodereference',
+         ),
+         'filter' => array(
+           'handler' => 'apachesolr_views_handler_filter_nodereference',
+           'cck_field' => $field,
+           'label' => t($field['field_name']),
+         ),
+         'argument' => array(
+           'handler' => 'apachesolr_views_handler_argument_nodereference',
+           'cck_field' => $field,
+         ),
+       );
+      }
+      elseif ($field['type'] == 'userreference') {
+       $data['apachesolr_' . $base_table][apachesolr_index_key($field)] = array(
+         'title' => t($field['field_name']),
+         'help' => t('CCK Mapping for @fieldname', array('@fieldname' => $field['field_name'])),
+         'field' => array(
+           'handler' => 'apachesolr_views_handler_field_userreference',
+         ),
+         'filter' => array(
+           'handler' => 'apachesolr_views_handler_filter_userreference',
+           'cck_field' => $field,
+           'label' => t($field['field_name']),
+         ),
+       );
+      }
     } // end: foreach
   } // end: foreach
   

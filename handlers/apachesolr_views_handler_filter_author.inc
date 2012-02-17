@@ -13,7 +13,7 @@ class apachesolr_views_handler_filter_author extends views_handler_filter_user_n
     
     if (empty($uids) && ($this->options['exposed'] && empty($this->options['expose']['optional']))) {
       if (!$not) {
-        $this->query->add_filter('nid', apachesolr_views_query::escape_term('-1'));
+        $this->query->add_filter('uid', apachesolr_views_query::escape_term('-1'));
       }
     }
     else {

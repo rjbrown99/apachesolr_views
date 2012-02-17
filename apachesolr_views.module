@@ -30,6 +30,100 @@ function theme_apachesolr_views_term_titles($term_names) {
 }
 
 /**
+ * Implementation of hook_menu().
+ */
+function apachesolr_views_menu() {
+  $items = array();
+  $items['apachesolr-views/nodereference/autocomplete'] = array(
+    'title' => 'Nodereference autocomplete',
+    'page callback' => 'apachesolr_views_nodereference_autocomplete',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+  $items['apachesolr-views/userreference/autocomplete'] = array(
+    'title' => 'Userreference autocomplete',
+    'page callback' => 'apachesolr_views_userreference_autocomplete',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+  return $items;
+}
+
+/**
+ * Custom nodereference autocomplete
+ */
+function apachesolr_views_nodereference_autocomplete($field_name, $string = '') {
+  $fields = content_fields();
+  $field = $fields[$field_name];
+  $match = isset($field['widget']['autocomplete_match']) ? $field['widget']['autocomplete_match'] : 'contains';
+  $matches = array();
+
+  $references = _nodereference_potential_references($field, $string, $match, array(), 10);
+  foreach ($references as $id => $row) {
+    // Add a class wrapper for a few required CSS overrides.
+    $matches[$row['title']] = '<div class="reference-autocomplete">'. $row['rendered'] . '</div>';
+  }
+  drupal_json($matches);
+}
+
+/**
+ * Custom nodereference autocomplete
+ */
+function apachesolr_views_userreference_autocomplete($field_name, $string = '') {
+  $fields = content_fields();
+  $field = $fields[$field_name];
+  $match = isset($field['widget']['autocomplete_match']) ? $field['widget']['autocomplete_match'] : 'contains';
+  $matches = array();
+
+  $references = _userreference_potential_references($field, $string, $match, array(), 10);
+  foreach ($references as $id => $row) {
+    // Add a class wrapper for a few required CSS overrides.
+    $matches[$row['title']] = '<div class="reference-autocomplete">'. $row['rendered'] . '</div>';
+  }
+  drupal_json($matches);
+}
+
+function apachesolr_views_handler_filter_cleanup($element) {
+  static $done = array();
+  
+  if (!isset($done[$element['#name']])) {
+    $done[$element['#name']] = TRUE;
+    $solr = apachesolr_static_response_cache();
+    if (isset($solr)) {
+      $options = $element['#options'];
+      $selectedoptions = $element['#value'];
+      if (isset($element['#vid'])) {
+        $elname = $element['#vid'];
+      }
+      else {
+        $elname = $element['#name'];
+      }
+      $facets = array();
+      $facet = $solr->facet_counts->facet_fields->{$elname};
+      if (isset($facet)) {
+        foreach ($facet as $k => $f) {
+          $facets[$k] = $k;
+        }
+      }
+      if (isset($facet) && isset($facets)) {
+        $intersect = array_intersect_key($options, $facets);
+        if (!empty($intersect)) {
+          $element['#options'] = $intersect;
+        }
+        else {
+          $element['#options'] = array_intersect_key($options, $selectedoptions);
+        }
+      }
+      else {
+        $element['#options'] = array_intersect_key($options, $selectedoptions);
+      }
+    }
+  }
+
+  return $element;
+}
+
+/**
  * Implementation of hook_apachesolr_entities().
  * This is done for apachesolr_search module.
  */

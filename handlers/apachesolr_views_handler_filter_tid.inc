@@ -18,7 +18,13 @@ class apachesolr_views_handler_filter_tid extends views_handler_filter_term_node
     }
     
   }
-    
+
+  function value_form(&$form, &$form_state) {
+    parent::value_form($form, $form_state);
+    $form['value']['#pre_render'] = array('apachesolr_views_handler_filter_cleanup');
+    $form['value']['#vid'] = 'im_vid_' . $this->options['vid'];
+  }
+
   function exposed_validate(&$form, &$form_state) {
     
     parent::exposed_validate($form, $form_state);
