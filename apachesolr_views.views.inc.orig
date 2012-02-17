@@ -370,7 +370,7 @@ function apachesolr_views_views_data_alter(&$data) {
 
     if (!empty($intersect)) {
       foreach ($intersect as $base_table) {
-        $default_group = isset($table_definition['table']['group']) ? $table_definition['table']['group'] : '';
+        $default_group = $table_definition['table']['group'];
         foreach ($table_definition as $database_field => $definition) {
           if ($database_field != 'table' && isset($definition['field'])) {
             if (!isset($definition['group'])) {
@@ -379,15 +379,10 @@ function apachesolr_views_views_data_alter(&$data) {
 
             // Only allow title, help, group and field keys. Filters and sorts are
             // not doable.
-            foreach (array('title', 'help', 'field') as $allowed_key) {
+            foreach (array('title', 'help', 'group', 'field') as $allowed_key) {
               if ( isset($definition[$allowed_key])) {
                 $new_tables['apachesolr_' . $base_table . '_' . $table][$database_field][$allowed_key] = $definition[$allowed_key];
               }
-            }
-
-            // Make separate groups for the Apache Solr fields
-            if ( isset($definition['group'])) {
-              $new_tables['apachesolr_' . $base_table . '_' . $table][$database_field]['group'] = 'Apache Solr '. $definition['group'];
             }
 
             // Add to the new_tables. This will be merged into data at the end.
