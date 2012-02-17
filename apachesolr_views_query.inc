@@ -450,7 +450,7 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
   /**
    * Ensure table function.
    */
-  public function ensure_table($table, $relationship) {
+  public function ensure_table($table, $relationship = NULL, $join = NULL) {
     if ($table != $this->base_table) {
       if (substr($table, 0, strlen($this->base_table)) == $this->base_table) {
         $real_table = substr($table, strlen($this->base_table) + 1);
