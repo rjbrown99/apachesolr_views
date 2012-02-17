@@ -510,10 +510,20 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
    * @return none
    */
   public function add_filter($type, $value, $exclude = FALSE) {
-    $this->_facets[$type][] = array(
-      'value' => $value,
-      'exclude' => $exclude,
-    );
+    if (isset($this->_facets[$type])) {
+      foreach ($this->_facets[$type] as $key => $facet) {
+        if ($facet['value'] == $value) {
+          $duplicate = TRUE;
+          break;
+        }
+      }
+    }
+    if (!isset($duplicate)) {
+      $this->_facets[$type][] = array(
+        'value' => $value,
+        'exclude' => $exclude,
+      );
+    }
   }
   
   /**
