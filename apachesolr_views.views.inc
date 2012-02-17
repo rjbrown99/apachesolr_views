@@ -134,9 +134,6 @@ function apachesolr_views_views_plugins() {
         //'help topic' => 'apachesolr-cache-time', // TODO!!!
       ),
     ),
-    'argument' => array(
-      'handler' => 'apachesolr_views_handler_argument_search',
-    ),
   );
 
 }
@@ -262,6 +259,9 @@ function apachesolr_views_views_data() {
       'help' => t('Searches the content with Solr'),
       'filter' => array(
         'handler' => 'apachesolr_views_handler_filter_search',
+      ),
+      'argument' => array(
+        'handler' => 'apachesolr_views_handler_argument_search',
       ),
     );
   
