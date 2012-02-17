@@ -252,6 +252,18 @@ function apachesolr_views_views_data() {
         ),
       );
     }
+
+    $data['apachesolr_' . $base_table]['sticky'] = array(
+      'title' => t('Sticky'),
+      'help' => t("Sort and filter by a node's sticky flag."),
+      'sort' => array(
+        'handler' => 'apachesolr_views_handler_sort',
+      ),
+      'filter' => array(
+        'handler' => 'apachesolr_views_handler_filter_boolean',
+      ),
+    );
+
     // @TODO: handle language field.
   
     $data['apachesolr_' . $base_table]['text'] = array(
