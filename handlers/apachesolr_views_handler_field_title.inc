@@ -26,7 +26,7 @@ class apachesolr_views_handler_field_title extends views_handler_field_node {
         }
       }
     }
-    return $data;
+    return html_entity_decode($data);
   }
 }
 
