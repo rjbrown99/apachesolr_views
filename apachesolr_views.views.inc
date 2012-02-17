@@ -75,7 +75,7 @@ function apachesolr_views_views_handlers() {
         'parent' => 'views_handler_filter_term_node_tid',
       ),
       'apachesolr_views_handler_optionwidget_filter' => array(
-        'parent' => 'views_handler_filter',
+        'parent' => 'views_handler_filter_many_to_one',
       ),
       'apachesolr_views_handler_filter_author' => array(
         'parent' => 'views_handler_filter_user_name',
