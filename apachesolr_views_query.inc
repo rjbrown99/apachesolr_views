@@ -319,7 +319,8 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
     try {
       $response = $this->_solr_service->search($this->_query, $this->offset, $this->limit, $this->_params);
       
-      $view->total_rows = $total = $response->response->numFound;
+      $view->total_rows = $response->response->numFound;
+      $total = count($response->response->docs);
 
       // The response is cached so that it is accessible to the blocks and
       // anything else that needs it beyond the initial search.
