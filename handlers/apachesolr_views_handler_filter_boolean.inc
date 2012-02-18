@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * @file
  * Provides a basic handler for boolean fields
  */
 class apachesolr_views_handler_filter_boolean extends views_handler_filter_boolean_operator {

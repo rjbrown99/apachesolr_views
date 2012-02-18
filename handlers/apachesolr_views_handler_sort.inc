@@ -1,11 +1,14 @@
 <?php
-
+/**
+ * @file
+ * Provides a handler field for sorts
+ */
 
 /**
  * Class for sorting for a field.
  */
 class apachesolr_views_handler_sort extends views_handler_sort {
-  
+
   /**
    * Places the sort into the search parameters.
    */
@@ -16,13 +19,13 @@ class apachesolr_views_handler_sort extends views_handler_sort {
       'title' => 'sort_title',
     );
 
-    $order = strtolower($this->options['order']);
+    $order = drupal_strtolower($this->options['order']);
     $field = empty($special_sort_fields[$this->real_field]) ? $this->real_field : $special_sort_fields[$this->real_field];
     $exposed_data = $this->view->exposed_data;
     $handler = $this->view->sort[$exposed_data['sort_by']];
-    
+
     $this->query->add_sort($field, $order, !empty($handler->options['exposed']));
 
   }
-  
+
 }

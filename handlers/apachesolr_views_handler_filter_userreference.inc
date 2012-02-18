@@ -1,5 +1,8 @@
 <?php
-// $Id: apachesolr_views_handler_filter_userreference.inc 1896 2012-02-17 22:08:42Z rbrown $
+/**
+ * @file
+ * Provides a handler filter for userreference fields
+ */
 
 /**
  * Class for filtering by userreference uid.
@@ -20,9 +23,9 @@ class apachesolr_views_handler_filter_userreference extends content_handler_filt
       foreach ($uids as $uid) {
         $filter_string .= " OR $uid";
       }
-      
+
       // Construct a small subquery.
-      $filter_string = substr($filter_string, 4);
+      $filter_string = drupal_substr($filter_string, 4);
       $filter_string = "($filter_string)";
 
       // Add it to the query.
@@ -66,7 +69,7 @@ class apachesolr_views_handler_filter_userreference extends content_handler_filt
 
   function value_form(&$form, &$form_state) {
     $form['value'] = array();
-    
+ 
     if ($this->options['type'] == 'select') {
       $this->get_value_options();
       $options = $this->value_options;
@@ -99,7 +102,7 @@ class apachesolr_views_handler_filter_userreference extends content_handler_filt
           if (!empty($this->options['expose']['optional']) && (empty($default_value) || !empty($this->options['expose']['reduce']))) {
             $default_value = 'All';
           }
-          else if (empty($default_value)) {
+          elseif (empty($default_value)) {
             $keys = array_keys($options);
             $default_value = array_shift($keys);
           }
@@ -126,7 +129,7 @@ class apachesolr_views_handler_filter_userreference extends content_handler_filt
           '#size' => count($options) > 8 ? 8 : count($options),
           '#pre_render' => array('apachesolr_views_handler_filter_cleanup'),
         );
-        
+
         if (!empty($form_state['exposed']) && !isset($form_state['input'][$identifier])) {
           $form_state['input'][$identifier] = $default_value;
         }
@@ -161,7 +164,7 @@ class apachesolr_views_handler_filter_userreference extends content_handler_filt
       else {
         $default = $this->value;
       }
-      
+
       $form['value'] = array(
         '#title' => $this->value_title,
         '#type' => 'textfield',

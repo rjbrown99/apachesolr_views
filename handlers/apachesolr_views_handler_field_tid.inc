@@ -1,6 +1,9 @@
 <?php
-
-// Based on jtsnow's patch on http://drupal.org/node/566692
+/**
+ * @file
+ * Provides a handler field for TID
+ * Based on jtsnow's patch on http://drupal.org/node/566692
+ */
 
 class apachesolr_views_handler_field_tid extends views_handler_field {
 
@@ -12,7 +15,7 @@ class apachesolr_views_handler_field_tid extends views_handler_field {
     $value = $values->{$this->field_alias};
     $terms = array();
     if (is_array($value)) {
-      foreach($value as $tid) {
+      foreach ($value as $tid) {
         $term = taxonomy_get_term($tid);
         $terms[] = $term->name;
       }

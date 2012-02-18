@@ -85,7 +85,7 @@ function apachesolr_views_userreference_autocomplete($field_name, $string = '') 
 
 function apachesolr_views_handler_filter_cleanup($element) {
   static $done = array();
-  
+
   if (!isset($done[$element['#name']])) {
     $done[$element['#name']] = TRUE;
     $solr = apachesolr_static_response_cache();

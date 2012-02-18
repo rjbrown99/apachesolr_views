@@ -1,13 +1,15 @@
 <?php
-
-// TODO: Spellchecker field? What todo about spellchecker...
+/**
+ * @file
+ * Apachesolr Views Query classes
+ */
 
 /**
  * Class for handling a view that gets its data not from the database, but from
  * a Solr server.
  */
 class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Query_Interface {
-  
+
   /**
    * Static shared by all instances, used to increment ID numbers.
    */
@@ -17,16 +19,16 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
    * Each query/subquery will have a unique ID
    */
   public $id;
-  
+
   // facets for the solr query
   protected $_facets = array();
-  
+
   // String containing the query that will be handed to Solr.
   protected $_query;
-  
+
   // Object encapsulating the actual query to Solr.
   protected $_solr_service;
-  
+
   // Array containing the parameters that will be handed to Solr.
   protected $_params = array(
     'facet' => 'true',
@@ -40,65 +42,65 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
     'url',
     'uid', // TODO: skip this probably, but not for user searching...
   );
-  
+
   // the template to use on the solr
   protected $_query_template = '';
-  
+
   // the view object. used for the get_path() method
   // @see get_path()
   protected $_view_arguments = array();
-  
+
   // from the view object used in the get_url_queryvalues() method
   // @see get_url_queryvalues()
   protected $_view_filters = array();
-  
+
   // this stores the base path for the view. we store it here as the
   // $view object isn't always avaible
   protected $_base_path = '';
-  
+
   // used to store subqueries. Useful in say the node_access implementation
   protected $_subqueries = array();
-  
+
   // array to store extra url query params. Used for instance to store
   // latitudes and longitudes
   protected $_extra_query = array();
-  
+
   // array to store the sorts for get_available_sorts() call
   protected $_available_sorts = array();
-  
+
   // array of sorts to apply to the query keyed by field => direction
   protected $_sorts = array();
-  
+
   // string to identify the current Views display
   protected $_current_display = '';
-  
+
   // string to identify the current Views name
   protected $_current_views_name = '';
-  
+
   // Array of query fields
   protected $_query_fields = array();
-  
+
   // array of boost functions
   protected $_boost_functions = array();
-  
+
   // array of boost queries
   protected $_boost_queries = array();
-  
+
   protected $base_table;
   protected $sql_base_table;
-  
+
   protected $base_field;
 
   protected $_db_query = NULL;
   protected $has_sql_fields = FALSE;
-    
+
   /**
    * Views init() function
    */
   public function init($base_table, $base_field, $options) {
     $this->base_table = $base_table;
     $this->base_field = $base_field;
-    $this->sql_base_table = substr($base_table, 11);
+    $this->sql_base_table = drupal_substr($base_table, 11);
     $this->_solr_service = apachesolr_get_solr();
 
     module_load_include('inc', 'views', 'plugins/views_plugin_query_default');
@@ -117,14 +119,14 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
       }
     }
   }
-  
+
   /**
    * copy constructor... what else to do?
    */
   public function __clone() {
     $this->id = ++self::$idCount;
   }
-  
+
   /**
    * Build the query object. Load up all avaivable facets so the blocks work.
    */
@@ -154,7 +156,7 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
           }
         }
       }
-      
+
       // now we do boost functions
       if (empty($this->_boost_functions)) {
         $this->_params['bf'] = array();
@@ -171,11 +173,11 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
             $total = $data->index->numDocs;
           }
         }
-        
+
         if (empty($total)) {
           $total = db_result(db_query("SELECT COUNT(nid) FROM {node}"));
         }
-        
+
         // date_settings
         $date_settings = variable_get('apachesolr_search_date_boost', '4:200.0');
         list($date_steepness, $date_boost) = explode(':', $date_settings);
@@ -233,10 +235,10 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
         foreach ($this->_query_fields as $field_name => $boost) {
           $this->_params['qf'][] = "$field_name^$boost";
         }
-        
+
         // add in the bf
         $this->_params['bf'] = $this->_boost_functions;
-        
+
         // build the bq
         foreach ($this->_boost_queries as $field_name => $fields) {
           foreach ($fields as $field_value => $boost) {
@@ -244,19 +246,18 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
           }
         }
       }
-      
+
       // Add in facets now
       $this->_params['fq'] = $this->rebuild_fq();
-      
-      
+
       // process subqueries
-      foreach ($this->_subqueries as $id=>$query_data) {
+      foreach ($this->_subqueries as $id => $query_data) {
         // process the query string first
         $sub_query_string = $query_data['query']->get_query_basic();
         if ($sub_query_string) {
           $this->_query .= " {$query_data['q_op']} ({$sub_query_string})";
         }
-        
+
         // now handle the filter query
         $subfq = $query_data['query']->get_fq();
         if ($subfq) {
@@ -270,13 +271,13 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
           $this->_params['fq'][$id] =  " (" . implode(" $operator " , $subqueries) . ")";
         }
       }
-      
+
       // add in the fields. These fields include the necessary fields.
       $this->_params['fl'] = implode(',', $this->_used_fields);
-      
+
       // build up the sorts here
       $this->_params['sort'] = implode(',', $this->get_solrsort());
-      
+
       // query template handling
       if (!empty($this->_query_template)) {
         $this->_params['qt'] = $this->_query_template;
@@ -286,7 +287,7 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
       watchdog('apachesolr_views', $e->getMessage());
     }
   }
-  
+
   /**
    * Let modules modify the query just prior to finalizing it.
    */
@@ -296,11 +297,11 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
       $function($this, $this->_params, 'apachesolr_views_query');
     }
   }
-  
+
   /**
    * Executes the query and fills the associated view object with according
    * values.
-   * 
+   *
    * Values to set: $view->result, $view->total_rows, $view->execute_time,
    * $view->pager['current_page'].
    */
@@ -318,7 +319,7 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
 
     try {
       $response = $this->_solr_service->search($this->_query, $this->offset, $this->limit, $this->_params);
-      
+
       $view->total_rows = $response->response->numFound;
       $total = count($response->response->docs);
 
@@ -330,10 +331,10 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
         apachesolr_has_searched(TRUE);
         apachesolr_current_query($this);
       }
-      
+
       if ($total > 0) {
         $results = $response->response->docs;
-        
+
         // Process dates
         $date_fields = array('created', 'changed');
         foreach (array_values($date_fields) as $field) {
@@ -439,7 +440,7 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
     }
     return $field;
   }
-  
+
   /**
    * Add a field to retrieve.
    */
@@ -453,8 +454,8 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
    */
   public function ensure_table($table, $relationship = NULL, $join = NULL) {
     if ($table != $this->base_table) {
-      if (substr($table, 0, strlen($this->base_table)) == $this->base_table) {
-        $real_table = substr($table, strlen($this->base_table) + 1);
+      if (drupal_substr($table, 0, drupal_strlen($this->base_table)) == $this->base_table) {
+        $real_table = drupal_substr($table, drupal_strlen($this->base_table) + 1);
       }
       else {
         $real_table = $table;
@@ -465,7 +466,7 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
 
   /**
    * Add a sorting directive.
-   * 
+   *
    * @param $single If TRUE, the results will only be sorted by this order.
    */
   public function add_sort($field, $order, $single = FALSE) {
@@ -473,9 +474,9 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
       $this->_sorts = array();
     }
     // don't need drupal_strtolower, this isn't a UTF-8 string
-    $this->_sorts[] = $field . ' ' . strtolower($order);
+    $this->_sorts[] = $field . ' ' . drupal_strtolower($order);
   }
-  
+
   /**
    * get a search param. Used primarly by the snippet field
    *
@@ -486,7 +487,7 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
   function get_param($param_name) {
     return $this->_params[$param_name];
   }
-  
+
   /**
    * set the search param. useful for extensions like localsolr
    *
@@ -501,7 +502,7 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
   function set_param($param_name, $param_value) {
     $this->_params[$param_name] = $param_value;
   }
-  
+
   /**
    * Add in a facet string
    *
@@ -532,7 +533,7 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
       );
     }
   }
-  
+
   /**
    * This function sets the query string
    *
@@ -544,7 +545,7 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
   public function set_query($query) {
     return $this->_query = $query;
   }
-  
+
   /**
    * return the basic query
    */
@@ -558,7 +559,7 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
   public function remove_keys() {
     $this->_query = '';
   }
-  
+
   /**
    * Checks to see if the facet has bene applied
    *
@@ -576,10 +577,10 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
         }
       }
     }
-    
+
     return FALSE;
   }
-  
+
   /**
    * Remove a facet from the query
    *
@@ -606,11 +607,11 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
         }
       }
     }
-    else if (isset($this->_facets[$field])) {
+    elseif (isset($this->_facets[$field])) {
       unset($this->_facets[$field]);
     }
   }
-  
+
   /**
    * return the search path
    */
@@ -652,17 +653,17 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
       }
       $path .= "/$part";
     }
-    
+
     if (count($path_parts) && $wildcard_count != count($path_parts)) {
       $path .= "/" .  implode('/', array_slice($path_parts, 0, count($path_parts) - $wildcard_count));
     }
-    $path = substr($path, 1);
+    $path = drupal_substr($path, 1);
     if (trim($path) == trim(variable_get('site_frontpage', 'node'))) {
       return '<front>';
     }
     return $path;
   }
-  
+
   /**
    * return the facet argument suitable for Views
    *
@@ -677,7 +678,8 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
       if ($field == 'text' && !empty($this->_query)) {
         //the search argument is special
         return $this->_query;
-      } else {
+      }
+      else {
         return '';
       }
     }
@@ -686,10 +688,10 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
         $argument_path .= ',' . $defintion['value'];
       }
     }
-    
+
     return drupal_substr($argument_path, 1);
   }
-  
+
   /**
    * determine if argument field is part of a facet block
    *
@@ -698,20 +700,20 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
    */
   protected function part_of_facet_block($argument) {
     foreach (apachesolr_get_enabled_facets() as $module => $module_facets) {
-      foreach($module_facets as $delta => $facet_field) {
+      foreach ($module_facets as $delta => $facet_field) {
         $facet_arguments[] = $facet_field;
       }
     }
 
     // Facets are IM_* where as argument are tid so this is a quick fix
-    if ((!empty($facet_arguments)) && ($argument->field == "tid")) return true;
+    if ((!empty($facet_arguments)) && ($argument->field == "tid")) return TRUE;
 
     // we use field instead of real_field
     // because we want these specific ones defined in
     // apachesolr_views.views.inc
     return (in_array($argument->field, $facet_arguments));
   }
-    
+
   /**
    * return any query string for use in the l function
    *
@@ -734,14 +736,14 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
         }
       }
     }
-    
+
     foreach ($this->_extra_query as $field => $value) {
       $query_values[$field] = $value;
     }
-    
+
     return $query_values;
   }
-  
+
   /**
    * set the solrsort. This currently doesn't work
    *
@@ -761,16 +763,16 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
    * @return array
    * array keyed with name => direction
    */
-   function get_solrsort() {
-     return $this->_sorts;
-   }
-  
+  function get_solrsort() {
+    return $this->_sorts;
+  }
+
   /**
    * return an array of filters
    *
    * @param string $name
    * the name of the filter applied to the query
-   * 
+   *
    * Compabatiablity layer with Solr_Base_Query
    */
   function get_filters( $name = NULL) {
@@ -778,12 +780,12 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
     foreach ($this->_facets as $type => $fields) {
       foreach ($fields as $data) {
         $filters[] = array(
-          '#name' => ($data['exclude']) ? "NOT $type" : $type, 
+          '#name' => ($data['exclude']) ? "NOT $type" : $type,
           '#value' => $data['value']
         );
       }
     }
-    
+
     // if we are looking for a specific one
     // remove all those that don't match and return the array
     if (!empty($name)) {
@@ -793,21 +795,21 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
         }
       }
     }
-    
+
     return $filters;
   }
-  
+
   function get_fq() {
     return $this->rebuild_fq();
   }
-  
+
   /**
    * return the Views display id
    */
   function get_display_id() {
     return $this->_current_display;
   }
-  
+
   /**
    * return the Views name
    */
@@ -820,13 +822,13 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
    *
    * @return $cache_info
    *   containing the query and any solr params
-   */ 
+   */
   public function get_cache_info() {
 
     return array(
       'query' => $this->_query,
       'apachesolr_params' => $this->_params,
-    );    
+    );
   }
 
   /**
@@ -851,7 +853,7 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
         || $term{0} == '(' && $term{strlen($term)-1} == ')') {
       return $term;
     }
-    
+
     if (strpos($term, ' TO ') !== FALSE) {
       return $term;
     }
@@ -860,10 +862,10 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
     }
     return Drupal_Apache_Solr_Service::escape($term);
   }
-  
+
   /**
    * allows the user to change the query template
-   * @see localsolr
+   * See localsolr
    *
    * @param string $qt
    * the query template name to use
@@ -871,7 +873,7 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
   public function change_query_template($qt) {
     $this->_query_template = $qt;
   }
-  
+
   /**
    * add a field and value to the query string
    * This is useful for generating links with the facet blocks
@@ -885,11 +887,11 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
   function add_url_query_param($field, $value) {
     $this->_extra_query[$field] = $value;
   }
-  
+
   public function get_available_sorts() {
     return $this->_available_sorts;
   }
-  
+
   /**
    * Remove a specific subquery
    *
@@ -899,21 +901,21 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
   function remove_subquery(Drupal_Solr_Query_Interface $query) {
     unset($this->_subqueries[$query->id]);
   }
-  
+
   /**
    * remove all subqueries
    */
   function remove_subqueries() {
-    $this->_subqueries = array();    
+    $this->_subqueries = array();
   }
-  
+
   /**
    * make a sort available
    */
   function set_available_sort($field, $sort) {
     // TODO: hmm.. wierd... we pull in all the sorts from Views data fields
   }
-  
+
   /**
    * adds query fields to the query with a specified weight
    *
@@ -926,7 +928,7 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
   function add_query_field($field_name, $boost = 1.0) {
     $this->_query_fields[$field_name] = $boost;
   }
-  
+
   /**
    * remove a query field
    *
@@ -936,7 +938,7 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
   function remove_query_field($field_name) {
     unset($this->_query_fields[$field_name]);
   }
-  
+
   /**
    * adds a query boost function to the query
    *
@@ -949,7 +951,7 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
   function add_boost_function($function, array $values) {
     $this->_boost_functions[] = vsprintf($function, $values);
   }
-  
+
   /**
    * adds a query boost for a specific field/value combo
    *
@@ -965,7 +967,7 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
   function add_boost_query($field_name, $field_value, $boost_value) {
     $this->_boost_queries[$field_name][$field_value] = $boost_value;
   }
-  
+
   /**
    * remove boost query
    *
@@ -983,7 +985,7 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
       unset($this->_boost_queries[$field_name]);
     }
   }
-  
+
   /**
    * build up the filter query params that are passed to Solr
    */

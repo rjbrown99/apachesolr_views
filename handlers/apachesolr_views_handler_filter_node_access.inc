@@ -5,7 +5,7 @@
  * provides node access filter implementation for apache solr
  */
 class apachesolr_views_handler_filter_node_access extends views_handler_filter_node_access {
-  
+
   /**
    * Override query().
    */
@@ -24,4 +24,3 @@ class apachesolr_views_handler_filter_node_access extends views_handler_filter_n
     }
   }
 }
-?>

@@ -5,7 +5,7 @@
  * Provides an argument handler for optionwidgets so they can use their allowed values
  */
 class apachesolr_views_handler_argument_optionwidget extends apachesolr_views_handler_argument {
-  
+
   /**
    * Override query() and do some fancy manipulation of the argument
    * so that it is boiled down to the actual field value
@@ -13,9 +13,9 @@ class apachesolr_views_handler_argument_optionwidget extends apachesolr_views_ha
    */
   function query() {
     $field = $this->definition['cck_field'];
-    
+
     foreach (content_allowed_values(content_fields($field['field_name'])) as $allowed_value => $nice_text) {
-      $options[$allowed_value] = strtolower(str_replace(' ', '-', $nice_text));
+      $options[$allowed_value] = drupal_strtolower(str_replace(' ', '-', $nice_text));
     }
     if (!empty($this->options['break_phrase'])) {
       $arguments = explode(',', $this->get_value());
@@ -23,7 +23,7 @@ class apachesolr_views_handler_argument_optionwidget extends apachesolr_views_ha
     else {
       $arguments = array($this->get_value());
     }
-    
+
     // time to set the arguments to something new
     $new_arguments = array();
     foreach ($arguments as $value) {
@@ -35,19 +35,19 @@ class apachesolr_views_handler_argument_optionwidget extends apachesolr_views_ha
         // TODO: do we need to do something here?
       }
     }
-    
-     foreach ($new_arguments as $facet_value) {
+
+    foreach ($new_arguments as $facet_value) {
       $this->query->add_filter($this->real_field, apachesolr_views_query::escape_term($facet_value));
     }
   }
-  
+
   /**
    * Get the title this argument will assign the view, given the argument.
    */
   function title() {
     $field = $this->definition['cck_field'];
     foreach (content_allowed_values(content_fields($field['field_name'])) as $allowed_value => $nice_text) {
-      $valid_path = strtolower(str_replace(' ', '-', $nice_text));
+      $valid_path = drupal_strtolower(str_replace(' ', '-', $nice_text));
       if ($this->argument == $valid_path) {
         return check_plain($nice_text);
       }

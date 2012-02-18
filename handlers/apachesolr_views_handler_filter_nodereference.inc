@@ -1,5 +1,8 @@
 <?php
-// $Id: apachesolr_views_handler_filter_nodereference.inc 1896 2012-02-17 22:08:42Z rbrown $
+/**
+ * @file
+ * Provides a handler filter for nodereference
+ */
 
 /**
  * Class for filtering by nodereference nid.
@@ -20,9 +23,9 @@ class apachesolr_views_handler_filter_nodereference extends content_handler_filt
       foreach ($nids as $nid) {
         $filter_string .= " OR $nid";
       }
-      
+
       // Construct a small subquery.
-      $filter_string = substr($filter_string, 4);
+      $filter_string = drupal_substr($filter_string, 4);
       $filter_string = "($filter_string)";
 //print_r('query::' . $this->real_field . '::' . $filter_string . '::' . $not);
       // Add it to the query.
@@ -99,7 +102,7 @@ class apachesolr_views_handler_filter_nodereference extends content_handler_filt
           if (!empty($this->options['expose']['optional']) && (empty($default_value) || !empty($this->options['expose']['reduce']))) {
             $default_value = 'All';
           }
-          else if (empty($default_value)) {
+          elseif (empty($default_value)) {
             $keys = array_keys($options);
             $default_value = array_shift($keys);
           }
@@ -160,7 +163,7 @@ class apachesolr_views_handler_filter_nodereference extends content_handler_filt
       else {
         $default = $this->value;
       }
-      
+
       $form['value'] = array(
         '#title' => $this->value_title,
         '#type' => 'textfield',

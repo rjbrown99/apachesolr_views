@@ -1,11 +1,14 @@
 <?php
-
+/**
+ * @file
+ * Provides a handler filter for type
+ */
 
 /**
-* Class for filtering by type.
-*/
+ * Class for filtering by type.
+ */
 class apachesolr_views_handler_filter_type extends views_handler_filter_in_operator {
- 
+
   public function get_value_options() {
     if (!isset($this->value_options)) {
       $this->value_title = t('Node type');
@@ -16,7 +19,7 @@ class apachesolr_views_handler_filter_type extends views_handler_filter_in_opera
       $this->value_options = $options;
     }
   }
-  
+
   /**
    * Provide inclusive/exclusive matching
    * TODO: cannot handle exlusive currently
@@ -42,7 +45,7 @@ class apachesolr_views_handler_filter_type extends views_handler_filter_in_opera
        * This works, but breaks the facet blocks
        * $this->query->add_filter($this->real_field, substr($filter, 3));
        */
-      
+
       $this->get_value_options();
       foreach ($this->value_options as $type => $name) {
         if (!in_array($type, $this->value)) {

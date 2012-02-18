@@ -1,5 +1,8 @@
 <?php
-// $Id: apachesolr_views_handler_field_nodereference.inc 1896 2012-02-17 22:08:42Z rbrown $
+/**
+ * @file
+ * Provides a handler field for nodereference
+ */
 
 /**
  * @file
@@ -17,7 +20,7 @@ class apachesolr_views_handler_field_nodereference extends views_handler_field {
     else {
       $values = array($doc->{$this->real_field});
     }
-    
+
     $titles = array();
     foreach ($values as $nid) {
       $titles[] = db_result(db_query('SELECT title FROM {node} WHERE nid = %d', $nid));

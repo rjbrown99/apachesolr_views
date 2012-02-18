@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * @file
+ * Provides a generic field handler
+ */
 
 /**
  * Class for retrieving and rendering an arbitrary field from an Apache Solr
@@ -7,16 +10,16 @@
  * The class uses a predefined handler to which it acts as a proxy.
  */
 class apachesolr_views_handler_field_generic {
-  
+
   /**
    * The handler from which to copy methods.
    */
   private $_original;
-  
+
   /*
    * Overloaded methods (this is where the magic lies)
    */
-  
+
   /**
    * Gets called when trying to retrieve an undefined property.
    */
@@ -26,28 +29,28 @@ class apachesolr_views_handler_field_generic {
     }
     return NULL;
   }
-  
+
   /**
    * Gets called when trying to set an undefined property.
    */
   public function __set($name, $value) {
     $this->_original->$name = $value;
   }
-  
+
   /**
    * Gets called when calling isset() or empty() on an undefined property.
    */
   public function __isset($name) {
     return isset($this->_original->$name);
   }
-  
+
   /**
    * Gets called when calling unser() on an undefined property.
    */
   public function __unset($name) {
     unset($this->_original->$name);
   }
-  
+
   /**
    * Gets called when calling an undefined instance method.
    */
@@ -57,7 +60,7 @@ class apachesolr_views_handler_field_generic {
     }
     return call_user_func_array(array($this->_original, $name), $args);
   }
-  
+
   /**
    * Gets called when calling an undefined static method.
    */
@@ -68,11 +71,11 @@ class apachesolr_views_handler_field_generic {
     }
     call_user_func_array($method, $args);
   }
-  
+
   /*
    * "Normal" methods
    */
-  
+
   /**
    * Loads the base handler and loads it with the specified definition.
    * Throws an exception if unsuccessful.
@@ -93,17 +96,17 @@ class apachesolr_views_handler_field_generic {
     // Give the original handler the correct definition.
     $this->_original->set_definition($definition);
   }
-  
+
   /**
    * Get option form definition.
-   * 
+   *
    * <strong>NOTE:</strong> This method must be defined explicitly since
    * pass-by-reference doesn't work with <tt>call_user_func_array()</tt>.
    */
   public function options_form(&$form, &$form_state) {
     return $this->_original->options_form($form, $form_state);
   }
-  
+
   /**
    * Construct a new apachesolr field handler.
    */
@@ -118,13 +121,13 @@ class apachesolr_views_handler_field_generic {
             'vid', 'timestamp'
         ));
   }
-  
+
   /**
    * We don't need to ensure any tables.
    * So overwrite this method because it might be called by inherited methods.
    */
   public function ensure_my_table() {}
-  
+
   /**
    * Tell the query object to retrieve this field.
    */
@@ -133,7 +136,7 @@ class apachesolr_views_handler_field_generic {
     $this->_original->query->add_field($this->_original->real_field);
     $this->add_additional_fields();
   }
-  
+
   /**
    * Add additionally required fields.
    */
@@ -145,7 +148,7 @@ class apachesolr_views_handler_field_generic {
       $this->_original->query->add_field($f);
     }
   }
-  
+
   /**
    * Called when click-sorting.
    */
@@ -155,7 +158,7 @@ class apachesolr_views_handler_field_generic {
       'name' => 'sort_name',
       'title' => 'sort_title',
     );
-    
+
     if (empty($special_sort_fields[$this->real_field])) {
       $this->_original->query->add_sort(
           $this->_original->real_field, $order, TRUE);
@@ -165,5 +168,5 @@ class apachesolr_views_handler_field_generic {
           $special_sort_fields[$this->_original->real_field], $order, TRUE);
     }
   }
-  
+
 }

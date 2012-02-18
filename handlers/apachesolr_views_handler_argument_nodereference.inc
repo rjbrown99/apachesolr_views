@@ -38,7 +38,7 @@ class apachesolr_views_handler_argument_nodereference extends content_handler_ar
 
     }
 
-    if(!empty($valid_arguments)) {
+    if (!empty($valid_arguments)) {
 
       foreach ($valid_arguments as $facet_value) {
         $this->query->add_filter($this->real_field, apachesolr_views_query::escape_term($facet_value));

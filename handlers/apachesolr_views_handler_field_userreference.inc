@@ -1,6 +1,4 @@
 <?php
-// $Id: apachesolr_views_handler_field_userreference.inc 1896 2012-02-17 22:08:42Z rbrown $
-
 /**
  * @file
  * provides a field handler for the snippet coming from the ApacheSolr search engine

@@ -1,6 +1,6 @@
 <?php
-
-/*
+/**
+ * @file
  * Load files with base classes of the contained classes.
  */
 
@@ -265,7 +265,7 @@ function apachesolr_views_views_data() {
     );
 
     // @TODO: handle language field.
-  
+
     $data['apachesolr_' . $base_table]['text'] = array(
       'title' => t('Search'),
       'help' => t('Searches the content with Solr'),
@@ -276,7 +276,7 @@ function apachesolr_views_views_data() {
         'handler' => 'apachesolr_views_handler_argument_search',
       ),
     );
-  
+
     // score field. Useful for when combining sorts. So you sort by score, creation etc.
     $data['apachesolr_' . $base_table]['score'] = array(
       'title' => t('Search Score'),
@@ -288,7 +288,7 @@ function apachesolr_views_views_data() {
         'handler' => 'apachesolr_views_handler_field_score'
       ),
     );
-  
+
     // comment_count field useful for sorting
     $data['apachesolr_' . $base_table]['comment_count'] = array(
       'title' => t('Comment Count'),
@@ -301,7 +301,7 @@ function apachesolr_views_views_data() {
         'click sortable' => FALSE,
       ),
     );
-  
+
     // snippet field
     $data['apachesolr_' . $base_table]['snippet'] = array(
       'title' => t('Search Snippet'),
@@ -317,7 +317,7 @@ function apachesolr_views_views_data() {
         'handler' => 'apachesolr_views_handler_argument_mlt',
       ),
     );
-  
+
     // node access
     if (module_exists('apachesolr_nodeaccess')) {
       $data['apachesolr_' . $base_table]['access'] = array(
@@ -328,7 +328,7 @@ function apachesolr_views_views_data() {
         ),
       );
     }
-  
+
     $data['apachesolr_' . $base_table]['promote'] = array(
       'title' => t('Promoted to Front Page'),
       'help' => t('Whether or not this node was promoted to the front page'),
@@ -338,7 +338,7 @@ function apachesolr_views_views_data() {
         'type' => 'yes-no',
       ),
     );
-  
+
     $data['apachesolr_' . $base_table]['status'] = array(
       'title' => t('Published'),
       'help' => t('Whether or not this node has been published'),
@@ -348,7 +348,7 @@ function apachesolr_views_views_data() {
         'type' => 'yes-no',
       ),
     );
-    
+
     // provide CCK mappings filters
     foreach (apachesolr_cck_fields() as $name => $field) {
       // TODO: can we make use of CCK's mapping already and just override
@@ -379,40 +379,40 @@ function apachesolr_views_views_data() {
         );
       } // end: if
       elseif ($field['type'] == 'nodereference') {
-       $data['apachesolr_' . $base_table][apachesolr_index_key($field)] = array(
-         'title' => t($field['field_name']),
-         'help' => t('CCK Mapping for @fieldname', array('@fieldname' => $field['field_name'])),
-         'field' => array(
-           'handler' => 'apachesolr_views_handler_field_nodereference',
-         ),
-         'filter' => array(
-           'handler' => 'apachesolr_views_handler_filter_nodereference',
-           'cck_field' => $field,
-           'label' => t($field['field_name']),
-         ),
-         'argument' => array(
-           'handler' => 'apachesolr_views_handler_argument_nodereference',
-           'cck_field' => $field,
-         ),
-       );
+        $data['apachesolr_' . $base_table][apachesolr_index_key($field)] = array(
+          'title' => t($field['field_name']),
+          'help' => t('CCK Mapping for @fieldname', array('@fieldname' => $field['field_name'])),
+          'field' => array(
+            'handler' => 'apachesolr_views_handler_field_nodereference',
+          ),
+          'filter' => array(
+            'handler' => 'apachesolr_views_handler_filter_nodereference',
+            'cck_field' => $field,
+            'label' => t($field['field_name']),
+          ),
+          'argument' => array(
+            'handler' => 'apachesolr_views_handler_argument_nodereference',
+            'cck_field' => $field,
+          ),
+        );
       }
       elseif ($field['type'] == 'userreference') {
-       $data['apachesolr_' . $base_table][apachesolr_index_key($field)] = array(
-         'title' => t($field['field_name']),
-         'help' => t('CCK Mapping for @fieldname', array('@fieldname' => $field['field_name'])),
-         'field' => array(
-           'handler' => 'apachesolr_views_handler_field_userreference',
-         ),
-         'filter' => array(
-           'handler' => 'apachesolr_views_handler_filter_userreference',
-           'cck_field' => $field,
-           'label' => t($field['field_name']),
-         ),
-       );
+        $data['apachesolr_' . $base_table][apachesolr_index_key($field)] = array(
+          'title' => t($field['field_name']),
+          'help' => t('CCK Mapping for @fieldname', array('@fieldname' => $field['field_name'])),
+          'field' => array(
+            'handler' => 'apachesolr_views_handler_field_userreference',
+          ),
+          'filter' => array(
+            'handler' => 'apachesolr_views_handler_filter_userreference',
+            'cck_field' => $field,
+            'label' => t($field['field_name']),
+          ),
+        );
       }
     } // end: foreach
   } // end: foreach
-  
+
   return $data;
 }
 
@@ -488,4 +488,3 @@ function apachesolr_views_views_plugins_alter(&$plugins) {
   $plugins['row']['node']['base'][] = 'apachesolr_node';
   $plugins['row']['node_rss']['base'][] = 'apachesolr_node';
 }
-

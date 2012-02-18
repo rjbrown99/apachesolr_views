@@ -1,10 +1,14 @@
 <?php
+/**
+ * @file
+ * Provides a handler filter
+ */
 
 /**
  * generic filter for Apache Solr
  */
 class apachesolr_views_handler_filter_single extends views_handler_filter_string {
-  
+
   /**
    * override query().
    */
@@ -17,12 +21,12 @@ class apachesolr_views_handler_filter_single extends views_handler_filter_string
     }
     $this->query->add_filter($this->real_field, $field);
   }
-  
+
   function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     unset($form['case']);
   }
-  
+
   /**
    * Override the operators
    */

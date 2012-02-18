@@ -62,4 +62,3 @@ class apachesolr_views_plugin_cache_time extends views_plugin_cache_time {
     }
   }
 }
-?>
