@@ -1,0 +1,29 @@
+Index: handlers/apachesolr_views_handler_argument_nodereference.inc
+===================================================================
+--- handlers/apachesolr_views_handler_argument_nodereference.inc	(revision 1908)
++++ handlers/apachesolr_views_handler_argument_nodereference.inc	(working copy)
+@@ -17,7 +17,7 @@
+ 
+   function query() {
+     $argument_values = $this->get_value();
+-    $allowed_arguments = $this->allowed_values();
++    //$allowed_arguments = $this->allowed_values();
+ 
+     if (!empty($this->options['break_phrase'])) {
+       $passed_arguments = explode(',', $argument_values);
+@@ -29,13 +29,10 @@
+     // check passed arguments against allowed values
+ 
+     $valid_arguments = array();
+-
+     foreach ($passed_arguments as $value) {
+-
+-      if (array_key_exists($value, $allowed_arguments)) {
++      //if (array_key_exists($value, $allowed_arguments)) {
+         $valid_arguments[] = (int) $value;
+-      }
+-
++      //}
+     }
+ 
+     if (!empty($valid_arguments)) {
