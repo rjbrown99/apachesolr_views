@@ -95,6 +95,9 @@ function apachesolr_views_views_handlers() {
       'apachesolr_views_handler_filter_boolean' => array(
         'parent' => 'views_handler_filter_boolean_operator',
       ),
+      'apachesolr_views_handler_filter_numeric' => array(
+        'parent' => 'views_handler_filter_numeric',
+      ),
       'apachesolr_views_handler_filter_nodereference' => array(
         'parent' => 'content_handler_filter_many_to_one',
       ),
@@ -369,12 +372,15 @@ function apachesolr_views_views_data() {
           ),
         ); // end: array
       }
-      elseif ($field['type'] == 'number_decimal') {
+      elseif (in_array($field['type'], array('number_decimal', 'number_float', 'formatted_decimal', 'formatted_float'))) {
         $data['apachesolr_' . $base_table][apachesolr_index_key($field)] = array(
           'title' => t($field['widget']['label']),
           'help' => t('CCK Mapping for @fieldname', array('@fieldname' => $field['field_name'])),
           'argument' => array(
             'handler' => 'apachesolr_views_handler_argument',
+          ),
+          'filter' => array(
+            'handler' => 'apachesolr_views_handler_filter_numeric',
           ),
         );
       } // end: if
