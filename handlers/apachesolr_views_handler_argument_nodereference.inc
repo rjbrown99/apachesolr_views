@@ -17,7 +17,7 @@ class apachesolr_views_handler_argument_nodereference extends content_handler_ar
 
   function query() {
     $argument_values = $this->get_value();
-    $allowed_arguments = $this->allowed_values();
+    //$allowed_arguments = $this->allowed_values();
 
     if (!empty($this->options['break_phrase'])) {
       $passed_arguments = explode(',', $argument_values);
@@ -29,13 +29,10 @@ class apachesolr_views_handler_argument_nodereference extends content_handler_ar
     // check passed arguments against allowed values
 
     $valid_arguments = array();
-
     foreach ($passed_arguments as $value) {
-
-      if (array_key_exists($value, $allowed_arguments)) {
+      //if (array_key_exists($value, $allowed_arguments)) {
         $valid_arguments[] = (int) $value;
-      }
-
+      //}
     }
 
     if (!empty($valid_arguments)) {
