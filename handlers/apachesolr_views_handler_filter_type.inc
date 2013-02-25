@@ -39,7 +39,12 @@ class apachesolr_views_handler_filter_type extends views_handler_filter_in_opera
     }
     else {
       foreach ($this->value as $type) {
-        $filter .= " OR $type";
+        if (!isset($filter)) {
+          $filter = " OR $type";
+        }
+        else {
+          $filter .= " OR $type";
+        }
       }
       /**
        * This works, but breaks the facet blocks

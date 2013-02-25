@@ -728,7 +728,7 @@ class apachesolr_views_query extends views_plugin_query implements Drupal_Solr_Q
           // the search exposed filter is special
           $query_values[$filter->options['expose']['identifier']] = $this->_query;
         }
-        elseif ($this->_facets[$filter->field]) {
+        elseif (isset($this->_facets[$filter->field])) {
           $query_values[$filter->options['expose']['identifier']] = $this->_facets[$filter->field];
         }
         elseif (!empty($_GET[$filter->options['expose']['identifier']]) && $filter->field != 'text') {
